@@ -1,43 +1,41 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-app=APIRouter()
+# from typing import Union
 
-db={}
+# from fastapi import APIRouter
 
-class Items(BaseModel):
-    name: str
-    desc : str
-
-# @app.get("/")
-# async def root(name: str):
-#     return{"message":"Welcome "+name}
-
-@app.get("/")
-def get_all_data():
-    return db
-
-@app.post("/items")
-def Create_Item(item:Items):
-    db[item.name]=item.desc
-    return {"items":item}
-
-@app.get("/")
-def get_all_data():
-    return db
-
-@app.delete("/")
-def delete_data(name:str):
-    del db[name]
-    return db
-
-@app.put("/")
-def update_data(item:Items):
-    db[item.name]=item.desc
-    return db
+# router = APIRouter()
 
 
-if __name__ == '__main__':
-    app.run()
-    
+# @router.get("/")
+# def read_root():
+#     return {"Hello": "World"}
 
 
+# @router.get("/items/{item_id}")
+# def read_item(item_id: int, q: Union[str, None] = None):
+#     return {"item_id": item_id, "q": q}
+
+# if __name__ == '__main__':
+#     router.run()
+
+from fastapi import APIRouter, Request, Depends, Form, status
+from fastapi.templating import Jinja2Templates
+
+from fastapi.responses import RedirectResponse
+
+templates = Jinja2Templates(directory="templates")
+
+router = APIRouter()
+
+@router.get("/")
+async def home(request: Request):
+    return templates.TemplateResponse("index.html",{"request": request})
+
+@router.post("/add")
+async def add(request: Request, name: str = Form(...)):
+    print(name)
+    return RedirectResponse(url=router.url_path_for("home"),status_code = status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/addnew")
+async def addnew(request:Request):
+    return templates.TemplateResponse("addnew.html",{"request":request})
